@@ -1,0 +1,18 @@
+groups:
+  - name: cluster-health
+    rules:
+    - alert: ClusterCPUHealth-jb
+      annotations:
+        summary: Notify when CPU utilization on a cluster is greater than the defined utilization limit
+        description: "The cluster has a high CPU usage: {{ $value }} core for {{ $labels.cluster }} {{ $labels.clusterID }}."
+      expr: |
+        max(cluster:cpu_usage_cores:sum) by (clusterID, cluster, prometheus) > 0
+      for: 5s
+      labels:
+        cluster: "{{ $labels.cluster }}"
+        prometheus: "{{ $labels.prometheus }}"
+        severity: critical
+  - name: container-memory
+    - record: pod:container_memory_cache:sum
+      expr: sum(container_memory_cache{pod!=""}) BY (pod, container)
+
